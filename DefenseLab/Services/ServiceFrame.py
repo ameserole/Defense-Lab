@@ -1,0 +1,8 @@
+
+class ServiceFrame(object):
+    def __init__(self, serviceInfo):
+        self.serviceInfo = serviceInfo
+        self.flag = None
+
+    def checkService(self):
+        raise NotImplementedError()
