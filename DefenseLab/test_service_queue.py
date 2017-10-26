@@ -1,8 +1,6 @@
 import json
 import pika
 
-from ServiceManager import buildImage
-
 imageName = "sampleservice"
 info = {
     'serviceName': 'over_write_1',

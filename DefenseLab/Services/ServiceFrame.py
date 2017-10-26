@@ -6,3 +6,6 @@ class ServiceFrame(object):
 
     def checkService(self):
         raise NotImplementedError()
+
+    def getLogs(self):
+        raise NotImplementedError()

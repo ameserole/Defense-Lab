@@ -1,8 +1,10 @@
 from .. import ServiceFrame
+import docker
 import urllib2
 import structlog
 
 logger = structlog.get_logger()
+
 
 class ServiceCheck(ServiceFrame.ServiceFrame):
     def __init__(self, serviceInfo):
@@ -22,8 +24,13 @@ class ServiceCheck(ServiceFrame.ServiceFrame):
             msg = "Succesfully open {}: {}".format(url, resp)
             logger.info("ApacheDirectoryTraversal", msg=msg, serviceInfo=self.serviceInfo.__dict__)
             return True
-        except:
+        except: # NOQA
             msg = "Failed to open {}".format(url)
             logger.info("ApacheDirectoryTraversal", msg=msg, serviceInfo=self.serviceInfo.__dict__)
             return False
         return False
+
+    def getLogs(self):
+        client = docker.from_env(version="auto")
+        container = client.containers.get(self.serviceInfo.serviceName)
+        return container.logs()

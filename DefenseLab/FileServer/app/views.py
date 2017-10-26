@@ -1,12 +1,10 @@
 import os
-import sys
-import time
 from app import app
-import requests
-from flask import Flask, request, redirect, url_for, Response
+from flask import request, Response
 from werkzeug.utils import secure_filename
 import pika
 import json
+
 
 def mapChallengeToInfo(challenge):
     return {
@@ -14,6 +12,7 @@ def mapChallengeToInfo(challenge):
         'DefenseLab_Example2': ('apachedirectorytraversal', 'DirectoryTraversal', 'ApacheDirectoryTraversal', 80, 'apache2.conf'),
         'Can_you_SQL_the_problem': ('sqlisimple', 'SQLi', 'SQLiSimple', 80, 'login.php'),
     }[challenge]
+
 
 def pushService(sent, folderpath):
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
@@ -31,13 +30,12 @@ def pushService(sent, folderpath):
         'serviceCheckName': info[2],
         'serviceHost': None,
         'servicePort': info[3]
-        
     }
-    
+
     print "Pushing: {}".format(service)
     channel.basic_publish(exchange='',
                           routing_key='serviceQueue',
-                          body=json.dumps(service))    
+                          body=json.dumps(service))
 
 
 @app.route('/upload', methods=["POST", "OPTIONS"])
@@ -50,11 +48,11 @@ def upload():
 
         user = secure_filename(sent['user'])
         chal = secure_filename(sent['challenge'])
-        filename = mapChallengeToInfo(chal)[4]#sent['file']
-        uploadedfile = sent['file'] 
+        filename = mapChallengeToInfo(chal)[4]
+        uploadedfile = sent['file']
         upload_folder = app.config['UPLOAD_FOLDER']
         folderpath = "{}/{}/{}/".format(upload_folder, user, chal)
-        
+
         if not os.path.exists(folderpath):
             os.makedirs(folderpath)
 
@@ -76,12 +74,13 @@ def upload():
                         message = json.loads(body)
                         yield message[message['display']]
                         userChannel.basic_ack(delivery_tag=method_frame.delivery_tag)
-                        i+=1 
-                        break                
-            
+                        i += 1
+                        break
+
         return Response(generate(user), mimetype='text/html')
 
     return ""
+
 
 @app.route('/<challenge>', methods=["GET"])
 def getFile(challenge):
@@ -93,5 +92,3 @@ def getFile(challenge):
         ret_file = f.read()
 
     return ret_file
-    
-

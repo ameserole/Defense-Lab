@@ -5,10 +5,10 @@ from ServiceManager import buildImage
 
 imageName = "apache-test2"
 info = {
-		'name': 'MyApache',
-		'imageName': imageName,
-		'exploitModule': 'sampleExploit'
-		}
+    'name': 'MyApache',
+    'imageName': imageName,
+    'exploitModule': 'sampleExploit'}
+
 dockerfile = "/home/messy/Documents/tamuctf-dev/Defense-Lab/DefenseLab"
 buildImage(dockerfile, imageName)
 

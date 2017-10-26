@@ -1,4 +1,5 @@
 from .. import ServiceFrame
+import docker
 import requests
 import structlog
 
@@ -15,9 +16,9 @@ class ServiceCheck(ServiceFrame.ServiceFrame):
         msg = "Attempting to open {}".format(url)
         logger.info("SQLiSimple", msg=msg, serviceInfo=self.serviceInfo.__dict__)
         try:
-            data = { 'username':'bob', 'password':'bobspassword' }
+            data = {'username': 'admin', 'password': '708DxSUf2O%C*pLWNI'}
             r = requests.post(url, data=data)
-            if r.text != '<html>You logged in as bob</html>':
+            if r.text != '<html>You logged in as admin</html>':
                 msg = "Incorrect Response {}".format(r.text)
                 logger.info("SQLiSimple", msg=msg, serviceInfo=self.serviceInfo.__dict__)
                 return False
@@ -25,8 +26,14 @@ class ServiceCheck(ServiceFrame.ServiceFrame):
             logger.info("SQLiSimple", msg=msg, serviceInfo=self.serviceInfo.__dict__)
             return True
 
-        except:
+        except: # NOQA
             msg = "Failed to open {}: {}".format(url, data)
             logger.info("SQLiSimple", msg=msg, serviceInfo=self.serviceInfo.__dict__)
             return False
         return False
+
+    def getLogs(self):
+        client = docker.from_env(version="auto")
+        container = client.containers.get(self.serviceInfo.serviceName)
+        tarstream, stat = container.get_archive('/var/log/apache2/error.log')
+        return str(tarstream.read())
