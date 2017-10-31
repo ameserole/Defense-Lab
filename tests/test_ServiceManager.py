@@ -1,40 +1,6 @@
 from DefenseLab.ServiceManager import ServiceInfo, buildImage, startService, cleanupService
 import mock
 import docker
-import pytest
-
-
-@pytest.fixture
-def fake_service():
-    fakeInfo = {
-        'serviceName': 'fakeName',
-        'imageName': 'fakeImage',
-        'volumeLocation': 'fakeVolume',
-        'serviceHost': '127.0.0.1',
-        'servicePort': 80,
-        'exploitModule': 'fakeExploit',
-        'serviceCheckName': 'fakeCheck',
-        'userInfo': 'fakeInfo'}
-
-    return ServiceInfo(fakeInfo)
-
-
-@pytest.fixture
-def fake_container():
-    class container():
-        def start(self):
-            pass
-
-        def logs(self, stdout, stderr):
-            return 'logs'
-
-        def stop(self):
-            pass
-
-        def remove(self):
-            pass
-
-    return container()
 
 
 def test_ServiceInfo():
