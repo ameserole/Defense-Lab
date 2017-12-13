@@ -3,4 +3,5 @@ pika
 structlog
 pytest
 mock
-
+flask
+flask_cors

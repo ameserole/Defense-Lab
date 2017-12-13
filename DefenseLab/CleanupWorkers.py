@@ -23,7 +23,7 @@ def cleanupCallback(ch, method, properties, body):
 def cleanupWorker():
     """Declare cleanup queue and callback"""
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(config.RABBITMQ_SERVER))
     channel = connection.channel()
     channel.queue_declare(queue='cleanupQueue', durable=True)
     logger.info("cleanupWorker", msg="Starting Cleanup Worker", queue="cleanupQueue")

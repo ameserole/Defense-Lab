@@ -2,6 +2,7 @@ import importlib
 import json
 import structlog
 import pika
+import config
 from multiprocessing import Process
 from ServiceManager import ServiceInfo, getLogs
 
@@ -11,7 +12,7 @@ logger = structlog.get_logger()
 def cleanup(service, log):
     """Puts service onto cleanup queueu"""
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(config.RABBITMQ_SERVER))
     channel = connection.channel()
     channel.queue_declare(queue='cleanupQueue', durable=True)
     channel.basic_publish(exchange='',
@@ -24,7 +25,7 @@ def cleanup(service, log):
 def attackCallback(ch, method, properties, body):
     """Pull service off of attack queue and run selected attack against it"""
 
-    connection2 = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection2 = pika.BlockingConnection(pika.ConnectionParameters(config.RABBITMQ_SERVER))
     resultChannel = connection2.channel()
     resultChannel.exchange_declare(exchange='resultX')
     resultChannel.queue_declare(queue='resultQueue', durable=True)
@@ -112,7 +113,7 @@ def attackCallback(ch, method, properties, body):
 
 def attackWorker():
     """Declare attack queue and callback function"""
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(config.RABBITMQ_SERVER))
     channel = connection.channel()
     channel.queue_declare(queue='attackQueue', durable=True)
     logger.info("attackWorker", msg="Starting Attack Worker", queue="attackQueue")

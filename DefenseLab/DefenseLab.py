@@ -1,18 +1,20 @@
 import structlog
 import time
+import config
 from Services.BuildImages import buildAllImages
 from AttackWorkers import startAttackWorkers
 from ServiceWorkers import startServiceWorkers
 from CleanupWorkers import startCleanupWorkers
 
+
 logger = structlog.get_logger()
 
-ServiceWorkerNumber = 2
-AttackWorkerNumber = 2
-CleanupWorkerNumber = 2
+ServiceWorkerNumber = config.NUM_SERVICE_WORKERS
+AttackWorkerNumber = config.NUM_SERVICE_WORKERS
+CleanupWorkerNumber = config.NUM_CLEANUP_WORKERS
 
 logger.info("DefenseLab", msg="Building All Images")
-buildAllImages("/home/messy/Defense-Lab/DefenseLab/Services/")
+buildAllImages(config.SERVICE_PATH)
 
 logger.info("DefenseLab", msg="Starting Service Workers", workerNum=ServiceWorkerNumber)
 startServiceWorkers(ServiceWorkerNumber)

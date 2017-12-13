@@ -20,7 +20,7 @@ def serviceCallback(ch, method, properties, body):
     service = startService(service)
 
     log.info("serviceCallback", msg="Placing Service on Attack Queue")
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(config.RABBITMQ_SERVER))
     channel = connection.channel()
     channel.queue_declare(queue='attackQueue', durable=True)
     channel.basic_publish(exchange='',
@@ -33,7 +33,7 @@ def serviceCallback(ch, method, properties, body):
 
 def serviceWorker():
     """Declare service queue and callback"""
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(config.RABBITMQ_SERVER))
     channel = connection.channel()
     channel.queue_declare(queue='serviceQueue', durable=True)
     logger.info("serviceWorker", msg="Starting Service Worker", queue="serviceQueue")
