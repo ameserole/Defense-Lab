@@ -3,3 +3,6 @@
 *.swo
 *log.txt
 *venv
+.cache
+.tox
+MANIFEST

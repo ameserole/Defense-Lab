@@ -1,6 +1,7 @@
 import json
 import structlog
 import pika
+import config
 from multiprocessing import Process
 from ServiceManager import ServiceInfo, cleanupService
 
