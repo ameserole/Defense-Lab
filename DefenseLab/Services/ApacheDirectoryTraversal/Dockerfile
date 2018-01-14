@@ -1,7 +1,7 @@
 FROM ubuntu:latest
 
-RUN apt-get update
-RUN apt-get install -y apache2 apache2-doc apache2-utils
+RUN apt update
+RUN apt install -y apache2 apache2-doc apache2-utils
 
 
 env APACHE_RUN_USER    www-data
