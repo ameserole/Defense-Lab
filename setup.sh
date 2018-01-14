@@ -2,8 +2,6 @@
 
 set -exo pipefail
 
-
-
 sudo apt update
 sudo apt install -y python-pip docker.io rabbitmq-server
 
