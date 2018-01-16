@@ -1,4 +1,4 @@
-#from DefenseLab import DefenseLab
+# from DefenseLab import DefenseLab
 import argparse
 import pika
 import os
@@ -6,11 +6,13 @@ import sys
 import binascii
 import json
 
+
 def callback(ch, method, properties, body):
     print body
-    ch.basic_ack(delivery_tag = method.delivery_tag)
+    ch.basic_ack(delivery_tag=method.delivery_tag)
     sys.exit()
     return
+
 
 def main():
     parser = argparse.ArgumentParser(description="Command Line Interface for Defense Lab")
@@ -24,11 +26,10 @@ def main():
 
     args = parser.parse_args()
 
-
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     channel = connection.channel()
     channel.queue_declare(queue='serviceQueue', durable=True)
- 
+
     userInfo = binascii.hexlify(os.urandom(32)).decode('ascii')
 
     service = {
@@ -47,12 +48,10 @@ def main():
                           routing_key='serviceQueue',
                           body=json.dumps(service))
 
-
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     userChannel = connection.channel()
     userChannel.exchange_declare(exchange='resultX')
     userChannel.queue_declare(queue='resultQueue', durable=True)
-
 
     userChannel.queue_bind(exchange='resultX',
                            queue='resultQueue',
@@ -64,6 +63,7 @@ def main():
     userChannel.start_consuming()
 
     userChannel.close()
+
 
 if __name__ == '__main__':
     main()
