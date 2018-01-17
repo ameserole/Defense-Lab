@@ -1,10 +1,10 @@
-# from DefenseLab import DefenseLab
 import argparse
 import pika
 import os
 import sys
 import binascii
 import json
+from DefenseLab import config
 
 
 def callback(ch, method, properties, body):
@@ -14,19 +14,8 @@ def callback(ch, method, properties, body):
     return
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Command Line Interface for Defense Lab")
-
-    parser.add_argument("-s", "--service-name", required=True, help="Name of docker container to create")
-    parser.add_argument("-i", "--image-name", required=True, help="Name of docker image to use")
-    parser.add_argument("-v", "--volume", required=True, help="Location of files to test")
-    parser.add_argument("-e", "--exploit", required=True, help="Name of exploit module to use")
-    parser.add_argument("-c", "--service-check", required=True, help="Name of service check module to use")
-    parser.add_argument("-p", "--port", required=True, type=int, help="Port number of service")
-
-    args = parser.parse_args()
-
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+def serviceStart(args):
+    connection = pika.BlockingConnection(pika.ConnectionParameters(config.RABBITMQ_SERVER))
     channel = connection.channel()
     channel.queue_declare(queue='serviceQueue', durable=True)
 
@@ -48,9 +37,9 @@ def main():
                           routing_key='serviceQueue',
                           body=json.dumps(service))
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(config.RABBITMQ_SERVER))
     userChannel = connection.channel()
-    userChannel.exchange_declare(exchange='resultX')
+    userChannel.exchange_declare(exchange='resultX', exchange_type='direct')
     userChannel.queue_declare(queue='resultQueue', durable=True)
 
     userChannel.queue_bind(exchange='resultX',
@@ -63,6 +52,43 @@ def main():
     userChannel.start_consuming()
 
     userChannel.close()
+
+
+def labStart(args):
+    if args.attack_workers is not None:
+        config.NUM_ATTACK_WORKERS = args.attack_workers
+    if args.service_workers is not None:
+        config.NUM_SERVICE_WORKERS = args.service_workers
+    if args.cleanup_workers is not None:
+        config.NUM_CLEANUP_WORKERS = args.cleanup_workers
+    from DefenseLab import DefenseLab # NOQA
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Command Line Interface for Defense Lab")
+
+    subparsers = parser.add_subparsers(title="Lab Commands", help="Commands to start and interact with Defense Lab", description="Commands to start and interact with Defense Lab")
+
+    startArgs = subparsers.add_parser("start", help="Start up the defense lab", description="Start up the defense lab")
+    startArgs.add_argument("-wa", "--attack-workers", type=int, help="Number of attack workers to start with. Default is two.")
+    startArgs.add_argument("-ws", "--service-workers", type=int, help="Number of service workers to start with. Default is two.")
+    startArgs.add_argument("-wc", "--cleanup-workers", type=int, help="Number of cleanup workers to start with. Default is two.")
+
+    serviceArgs = subparsers.add_parser("send", description="Info to push onto the service queue")
+    serviceArgs.add_argument("-s", "--service-name", required=True, help="Name of docker container to create")
+    serviceArgs.add_argument("-i", "--image-name", required=True, help="Name of docker image to use")
+    serviceArgs.add_argument("-v", "--volume", required=True, help="Location of files to test")
+    serviceArgs.add_argument("-e", "--exploit", required=True, help="Name of exploit module to use")
+    serviceArgs.add_argument("-c", "--service-check", required=True, help="Name of service check module to use")
+    serviceArgs.add_argument("-p", "--port", required=True, type=int, help="Port number of service")
+
+    args = parser.parse_args()
+
+    try:
+        args.attack_workers
+        labStart(args)
+    except AttributeError:
+        serviceStart(args)
 
 
 if __name__ == '__main__':

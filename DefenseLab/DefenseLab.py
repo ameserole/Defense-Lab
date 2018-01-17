@@ -10,7 +10,7 @@ from CleanupWorkers import startCleanupWorkers
 logger = structlog.get_logger()
 
 ServiceWorkerNumber = config.NUM_SERVICE_WORKERS
-AttackWorkerNumber = config.NUM_SERVICE_WORKERS
+AttackWorkerNumber = config.NUM_ATTACK_WORKERS
 CleanupWorkerNumber = config.NUM_CLEANUP_WORKERS
 
 logger.info("DefenseLab", msg="Building All Images")

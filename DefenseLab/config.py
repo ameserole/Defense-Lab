@@ -10,7 +10,7 @@ NUM_SERVICE_WORKERS = 2
 NUM_CLEANUP_WORKERS = 2
 
 # Path to the folder containing all of the services
-SERVICE_PATH = os.path.join(os.getcwd(), 'Services/')
+SERVICE_PATH = os.path.join(os.getcwd(), 'DefenseLab/Services/')
 
 # Address of the RabbitMQ server
 RABBITMQ_SERVER = 'localhost'

@@ -27,7 +27,7 @@ def attackCallback(ch, method, properties, body):
 
     connection2 = pika.BlockingConnection(pika.ConnectionParameters(config.RABBITMQ_SERVER))
     resultChannel = connection2.channel()
-    resultChannel.exchange_declare(exchange='resultX')
+    resultChannel.exchange_declare(exchange='resultX', exchange_type='direct')
     resultChannel.queue_declare(queue='resultQueue', durable=True)
 
     body = json.loads(body)
@@ -41,7 +41,7 @@ def attackCallback(ch, method, properties, body):
     userMsg = "Starting Attack on {}\n".format(service.serviceName)
 
     # Get the Service module for this service and check that it is running correctly
-    serviceCheckModuleName = 'Services.' + service.serviceCheckName + '.' + service.serviceCheckName
+    serviceCheckModuleName = 'DefenseLab.Services.' + service.serviceCheckName + '.' + service.serviceCheckName
     serviceModule = importlib.import_module(serviceCheckModuleName, package=None)
     serviceCheckObject = serviceModule.ServiceCheck(service)
 
@@ -60,7 +60,7 @@ def attackCallback(ch, method, properties, body):
         return -1
 
     # If the service is running correctly grab the selected exploit module and run it against the current service
-    exploitModuleName = 'Exploits.' + service.exploitModule
+    exploitModuleName = 'DefenseLab.Exploits.' + service.exploitModule
     exploitModule = importlib.import_module(exploitModuleName, package=None)
     exploitObject = exploitModule.Exploit(service)
     exploitObject.exploit()
